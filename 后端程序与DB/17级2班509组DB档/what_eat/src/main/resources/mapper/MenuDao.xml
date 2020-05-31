@@ -1,0 +1,92 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--包名与dao包中的接口名对应-->
+<mapper namespace="com.ssm.dao.MenuDao">
+    <!--目的:为dao接口方法提供sql语句配置
+    即针对dao接口中的方法编写我们的sql语句-->
+    <!--
+    id与接口中的方法名一致
+    parameterType:参数类型，与接口方法中的参数类型一致；对于多个参数，可不写参数类型，但在dao接口中要用@Param注解
+    resultType：返回值类型，
+    -->
+    <select id="queryById" resultType="Menu" parameterType="Integer">
+        select *
+        from menu
+        where id=#{id}
+    </select>
+
+
+    <select id="queryByName" resultType="Menu" parameterType="String">
+        select *
+        from menu
+        where
+        name like CONCAT('%',#{MenuName},'%')
+    </select>
+
+    <select id="queryByCategory" resultType="Menu" parameterType="String">
+        select *
+        from menu
+        where category=#{category}
+    </select>
+
+    <select id="queryAll" resultType="Menu">
+        select *
+        from menu
+        where id in (1,11,21,31,41,51,61,71)
+--         where id <![CDATA[ <= ]]> 5
+    </select>
+
+    <select id="queryCollect" resultType="Menu">
+        select *
+        from menu
+        where collected=1
+--         where id <![CDATA[ <= ]]> 5
+    </select>
+
+    <select id="queryDelete" resultType="Menu">
+        select *
+        from menu
+        where deleted=1
+--         where id <![CDATA[ <= ]]> 5
+    </select>
+
+    <select id="findMenuByRowBounds" resultType="Menu" parameterType="String">
+        select *
+        from menu
+        where category like con
+    </select>
+    
+    <update id="collectMenu" parameterType="Integer">
+        update menu
+        set collected=1
+        where id=#{id}
+    </update>
+
+    <update id="deleteMenu" parameterType="Integer">
+        update menu
+        set deleted=1
+        where id=#{id}
+    </update>
+
+    <update id="collectCancel" parameterType="Integer">
+        update menu
+        set collected=0
+        where id=#{id}
+    </update>
+
+    <update id="deleteCancel" parameterType="Integer">
+        update menu
+        set deleted=0
+        where id=#{id}
+    </update>
+
+    <update id="updateUrl" parameterType="Menu">
+        update menu
+        set url=#{url}
+        where id=#{id}
+    </update>
+
+
+
+</mapper>

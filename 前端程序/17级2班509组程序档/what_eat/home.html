@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="./css/mint.css">
+    <link rel="stylesheet" href="./css/mui.min.css"/>
+    <link rel="stylesheet" href="./css/bootstrap.css"/>
+    <link rel="stylesheet" href="./css/elementUI.css"/>
+    <script src="./js/vue.js"></script>
+    <script src="./js/vue-router-3.0.1.js"></script>
+    <script src="./js/mintui.js"></script>
+    <script src="./js/elementUI.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <style lang="scss" scoped>
+        .router-link-active{
+            font-size: 20px;
+        }
+        .app-container{
+            padding-top: 40px;
+            overflow-x: hidden;
+        }
+        .mint-swipe{
+            height: 200px;
+        }
+        .v-enter{
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        .v-leave-to{
+            opacity: 0;
+            transform: translateX(-100%);
+            position: absolute;
+        }
+        .v-enter-active,
+        .v-leave-active{
+            transition: all 0.5s ease;
+        }
+        [v-cloak]{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="app-container">
+
+    <mt-header fixed title="吃什么系统"></mt-header>
+
+    <transition>
+        <router-view></router-view>
+    </transition>
+
+    <nav class="mui-bar mui-bar-tab">
+
+        <router-link class="mui-tab-item" to="/searchcomponent">
+            <span class="mui-icon mui-icon-home"></span>
+            <span class="mui-tab-label">首页</span>
+        </router-link>
+        <router-link class="mui-tab-item" to="/collectcomponent">
+            <!--<span class="mui-icon mui-icon-star"><span class="mui-badge"></span></span>-->
+            <span class="mui-icon mui-icon-star"></span>
+            <span class="mui-tab-label">收藏</span>
+        </router-link>
+        <router-link class="mui-tab-item" to="/deletecomponent">
+            <span class="mui-icon mui-icon-trash"></span>
+            <span class="mui-tab-label">删除</span>
+        </router-link>
+        <router-link class="mui-tab-item" to="/feedbackcomponent">
+            <span class="mui-icon mui-icon-compose"></span>
+            <span class="mui-tab-label">反馈</span>
+        </router-link>
+        <router-link class="mui-tab-item" to="/carouselcomponent">
+            <span class="mui-icon mui-icon-image"></span>
+            <span class="mui-tab-label">轮播</span>
+        </router-link>
+    </nav>
+</div>
+
+<template id="searchcomponent">
+    <div>
+        <div id="swipe">
+            <mt-swipe :auto="4000">
+                <mt-swipe-item v-for="item in swipeList" :key="item.url">
+                    <img :src="item.url" style="width: 100%;height: 100%;"/>
+                </mt-swipe-item>
+            </mt-swipe>
+        </div>
+
+        <div id="search" class="mint-searchbar">
+            <div class="mint-searchbar-inner">
+                <input placeholder="输入菜名....." class="mint-searchbar-core" v-model="menuName">
+            </div>
+            <a class="mint-searchbar-cancel" style="">
+                <span class=" mui-icon mui-icon-search" v-on:click="searchMenu"></span>
+                <!-- <button type="button" class="btn btn-primary mb-2" style="margin-left: 5px;" v-on:click="searchMenu">搜索</button> -->
+            </a>
+        </div>
+
+        <div id="menulist">
+            <ul class="mui-table-view">
+                <li class="mui-table-view-cell mui-media" v-for="item in menuList" :key="item.url" v-cloak>
+                    <router-link :to="{name:'test1',params:{id:item.id}}">
+                        <img class="mui-media-object mui-pull-left" :src="item.url">
+                        <div class="mui-media-body">
+                            {{item.category}}
+                            <p class='mui-ellipsis'>{{item.name}}</p>
+                        </div>
+                    </router-link>
+                </li>
+            </ul>
+        </div>
+        <!--<router-link :to="{name:'test1',params:{id:id}}">详情</router-link>-->
+        <!--<h1>这是搜索组件： -&#45;&#45;{{msg}}&#45;&#45;&#45;&#45;<br>-->
+            <!--接收到参数：{{$route.params.id}}&#45;&#45;&#45;&#45;{{$route.params.name}}<br>-->
+        <!--</h1>-->
+    </div>
+</template>
+
+<template id="collectcomponent">
+
+    <div id="collectedlist">
+        <ul class="mui-table-view">
+            <li class="mui-table-view-cell mui-media" v-for="item in menuList" :key="item.url" v-cloak>
+                <router-link :to="{name:'test1',params:{id:item.id}}">
+                    <img class="mui-media-object mui-pull-left" :src="item.url">
+                    <div class="mui-media-body">
+                        {{item.category}}
+                        <p class='mui-ellipsis'>{{item.name}}</p>
+                    </div>
+                </router-link>
+                <button type="button" class="btn btn-danger" @click.stop="operator(item.id)" style="float:right;">删除</button>
+            </li>
+        </ul>
+    </div>
+
+</template>
+
+<template id="deletecomponent">
+    <div id="deletedlist">
+
+        <ul class="mui-table-view">
+            <li class="mui-table-view-cell mui-media" v-for="item in menuList" :key="item.url" v-cloak>
+                <router-link :to="{name:'test1',params:{id:item.id}}">
+                    <img class="mui-media-object mui-pull-left" :src="item.url">
+                    <div class="mui-media-body">
+                        {{item.category}}
+                        <p class='mui-ellipsis'>{{item.name}}</p>
+                    </div>
+                </router-link>
+                <button type="button" class="btn btn-primary" @click.stop="operator(item.id)" style="float:right;">取消</button>
+            </li>
+        </ul>
+    </div>
+</template>
+
+<template id="feedbackcomponent">
+    <div >
+
+        <ul class="mui-table-view">
+            <li class="mui-table-view-cell mui-media" v-for="item in ideaList" :key="item.id" v-cloak>
+                <router-link :to="{name:'feedbackcheck',params:{id:item.id}}">
+                    <img class="mui-media-object mui-pull-left" :src="item.url">
+                    <div class="mui-media-body">
+                        {{item.category}}
+                        <p class='mui-ellipsis'>{{item.name}}</p>
+                    </div>
+                </router-link>
+
+                    <div style="float:right;">
+                        <button type="button" class="btn btn-success mb-2" @click.stop="operator1(item.id)">通过</button>
+                        <button type="button" class="btn btn-danger mb-2" @click.stop="operator2(item.id)">不通过</button>
+                    </div>
+
+            </li>
+        </ul>
+    </div>
+</template>
+
+<template id="feedbackcheckcomponent">
+    <div>
+        <form role="form" v-cloak v-for="item in ideaList" :key="item.id">
+            <div class="form-group">
+                <h2 align="center">反馈审核表</h2>
+                <div class="col-sm-10" hidden="">
+                    <input readonly ="readonly" class="form-control" placeholder="菜单id">
+                </div>
+
+                <label  class="col-sm-2 control-label">单号</label>
+                <div class="col-sm-10">
+                    <input readonly ="readonly" class="form-control" placeholder="单号" :value="item.id">
+                </div>
+
+                <label  class="col-sm-2 control-label">菜系</label>
+                <div class="col-sm-10">
+                    <input readonly ="readonly" class="form-control" placeholder="菜系" :value="item.category">
+                </div>
+
+
+                <label   class="col-sm-2 control-label">菜名</label>
+                <div class="col-sm-10">
+                    <input readonly ="readonly"  class="form-control" placeholder="菜名" :value="item.name">
+                </div>
+
+                <label   class="col-sm-2 control-label">做法</label>
+                <div class="col-sm-10">
+  					<textarea class="form-control" rows="3" placeholder="做法" readonly ="readonly" :value="item.method">
+                        {{item.idea}}
+  					</textarea>
+                </div>
+
+                <label   class="col-sm-2 control-label">建议</label>
+                <div class="col-sm-10">
+                    <textarea readonly ="readonly" class="form-control" rows="3" placeholder="建议">
+                         {{item.idea}}
+                    </textarea>
+                </div>
+
+            </div>
+            <router-link :to="{name:'feedbackcomponent'}">
+                 <button type="button" class="btn btn-primary mb-2" style="margin-left: 5px;">返回</button>
+            </router-link>
+
+        </form>
+    </div>
+</template>
+
+<template id="feedbackformcomponent">
+    <div>
+        <form role="form" v-cloak v-for="item in menuList" :key="item.id">
+            <div class="form-group">
+                <h2 align="center">反馈信息表</h2>
+                <label class="col-sm-2 control-label">菜系</label>
+                <div class="col-sm-10">
+                    <input readonly ="readonly" class="form-control" placeholder="菜系" :value="item.category" >
+                </div>
+                <label   class="col-sm-2 control-label">菜名</label>
+                <div class="col-sm-10">
+                    <input readonly ="readonly"  class="form-control" placeholder="菜名" :value="item.name">
+                </div>
+
+                <label   class="col-sm-2 control-label">做法</label>
+                <div class="col-sm-10">
+    				<textarea class="form-control" rows="3" placeholder="做法" readonly ="readonly" :value="item.method"></textarea>
+                </div>
+
+                <label   class="col-sm-2 control-label">建议</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" rows="3" placeholder="建议" v-model="idea" v-cloak>
+                        {{idea}}
+                    </textarea>
+                </div>
+
+            </div>
+            <router-link :to="{name:'feedbackcomponent'}">
+                <button type="button" class="btn btn-primary mb-2" style="margin-left: 5px;" @click="submitForm">提交</button>
+            </router-link>
+            <router-link :to="{name:'test1',params:{id:item.id}}">
+                <button type="button" class="btn btn-primary mb-2" style="margin-left: 5px;">取消</button>
+            </router-link>
+
+        </form>
+    </div>
+</template>
+
+<template id="menuinfocomponent">
+    <div >
+        <div v-cloak v-for="item in menuList" :key="item.url">
+        <div class="mui-card" >
+            <!--页眉，放置标题-->
+            <div class="mui-card-header">
+                <img :src="item.url" style="width: 100%;height: 100%;"/>
+
+            </div>
+            <!--内容区-->
+            <div class="mui-card-content">
+                <p>菜系：{{item.category}}</p>
+                <p>菜名：{{item.name}}</p>
+                <p>做法：{{item.method}}</p>
+            </div>
+
+        </div>
+
+        <button type="button" class="btn btn-warning" @click.stop="operator()">收藏</button>
+        <router-link :to="{name:'feedbackform',params:{id:item.id}}">
+            <button type="button" class="btn btn-primary">反馈</button>
+        </router-link>
+        </div>
+        <!--<h1>这是 菜单信息 组件： -&#45;&#45;{{msg}}<br>接收到参数：{{$route.params.id}}-->
+            <!--{{$route.name}}-->
+        <!--</h1>-->
+    </div>
+</template>
+
+<template id="carouselcomponent">
+    <div class="block">
+        <h3 align="center">轮播页面</h3>
+
+        <div >
+            <el-carousel indicator-position="none" trigger="click" :interval="computedSpeed" @change="synchSpeed">
+                <el-carousel-item v-for="item in menuList" :key="item.id">
+                    <div >
+                        <div align="center">
+                            <img :src="item.url"/>
+                        </div>
+                        <div class="mui-card">
+                            <div class="mui-card-content" >
+                                <p>菜系：{{item.category}}</p>
+                                <p>菜名：{{item.name}}</p>
+                                <p>做法：{{item.method}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </el-carousel-item>
+            </el-carousel>
+        </div>
+
+       <div align="center" style="vertical-align: middle">
+           <router-link class="mui-tab-item mui-active" :to="{name:'carouselcomponent',params:{speed:this.speed}}">
+               <div class="block" style="width: 50%;">
+                   <el-slider v-model="speed" :min="minSpeed" :max="maxSpeed" :show-tooltip="false" @change="getSpeed"></el-slider>
+               </div>
+           </router-link>
+       </div>
+    </div>
+</template>
+
+</body>
+<script>
+
+    var searchcomponent={
+        template:'#searchcomponent',
+        data(){
+            return{
+                msg:'searchcomponent',
+                menuName:'',
+                id:20,
+                name:'gill',
+                value:'',
+                swipeList:[
+                    {url:'https://oss.izumi-sakai.top/img/list1.jpg'},
+                    {url:'https://oss.izumi-sakai.top/img/list2.jpg'},
+                    {url:'https://oss.izumi-sakai.top/img/list3.jpg'}
+                ],
+                menuList:[]
+            }
+        },
+        created(){
+            this.getMenuList();
+        },
+        methods:{
+            getswipeList(){
+                console.log("searchcomponent-getswipeList");
+            },
+            getMenuList(){
+                console.log("searchcomponent-getMenuList");
+                var that=this;
+                var date=new Date();
+                console.log(date.toLocaleString());
+                axios.get("http://ip:8081/what_eat/menu/list",{}).then(function (response) {
+                    that.menuList=response.data;
+                })
+            },
+            searchMenu(){
+                console.log("searchcomponent-searchMenu");
+                var that=this;
+                var param = {"type":"mysql","menuName":that.menuName};
+                axios.post("http://ip:8081/what_eat/menu/menuName",param).then(function (response) {
+                    console.log("axios-post");
+                    that.menuList=response.data;
+                })
+            }
+        }
+    }
+    var collectcomponent={
+        template:'#collectcomponent',
+        data(){
+            return{
+                msg:'collectcomponent',
+                menuList:[]
+            }
+        },
+        created(){
+            this.getMenuList();
+        },
+        methods:{
+            getMenuList(){
+                console.log("collectcomponent-getMenuList");
+                var that=this;
+                var param={"type":"collect"};
+                axios.post("http://ip:8081/what_eat/menu/list/operator",param).then(function (response) {
+                    that.menuList=response.data;
+                })
+            },
+            operator(menuid){
+                console.log("collectcomponent-operator");
+                console.log("id="+menuid);
+                this.$toast({
+                    duration:1000,
+                    message:'操作成功'
+                });
+                var that=this;
+                var id=menuid.toString();
+                var param= {"type":"collect","id":id};
+                axios.post("http://ip:8081/what_eat/menu/id/cancel",param).then(function (response) {
+                    console.log("axios-post");
+                    that.menuList=response.data;
+                })
+            }
+        }
+
+    }
+    var deletecomponent={
+        template:'#deletecomponent',
+        data(){
+            return{
+                msg:'deletecomponent',
+                menuList:[]
+            }
+        },
+        created(){
+            this.getMenuList();
+        },
+        methods:{
+            getMenuList(){
+                console.log("deletecomponent-getMenuList");
+                var that=this;
+                var param= {"type":"delete"};
+                axios.post("http://ip:8081/what_eat/menu/list/operator",param).then(function (response) {
+                    that.menuList=response.data;
+                })
+            },
+            operator(menuid){
+                console.log("deletecomponent-operator");
+                console.log("id="+menuid);
+                this.$toast({
+                    duration:1000,
+                    message:'操作成功'
+                });
+                var that=this;
+                var id=menuid.toString();
+                var param= {"type":"delete","id":id};
+                axios.post("http://ip:8081/what_eat/menu/id/cancel",param).then(function (response) {
+                    console.log("axios-post");
+                    that.menuList=response.data;
+                })
+            }
+        }
+
+    }
+    var feedbackcomponent={
+        template:'#feedbackcomponent',
+        data(){
+            return{
+                msg:'feedbackcomponent',
+                ideaList:[]
+            }
+        },
+        created(){
+            this.getIdeaList();
+        },
+        methods:{
+            getIdeaList(){
+                console.log("feedbackcomponent-getIdeaList");
+                var that=this;
+                axios.get("http://ip:8081/what_eat/suggestion/list",{}).then(function (response) {
+                    that.ideaList=response.data;
+                })
+            },
+            operator1(suggestionId){
+                console.log("feedbackcomponent-operator");
+                console.log("id="+suggestionId);
+                this.$toast({
+                    duration:1000,
+                    message:'操作成功'
+                });
+                var that=this;
+                var id=suggestionId.toString();
+                var param= {"type":"yes","id":id};
+                axios.post("http://ip:8081/what_eat/suggestion/id/review",param).then(function (response) {
+                    console.log("axios-post");
+                    that.ideaList=response.data;
+                })
+            },
+            operator2(suggestionId){
+                console.log("feedbackcomponent-operator");
+                console.log("id="+suggestionId);
+                this.$toast({
+                    duration:1000,
+                    message:'操作成功'
+                });
+                var that=this;
+                var id=suggestionId.toString();
+                var param= {"type":"no","id":id};
+                axios.post("http://ip:8081/what_eat/suggestion/id/review",param).then(function (response) {
+                    console.log("axios-post");
+                    that.ideaList=response.data;
+                })
+            }
+        }
+    }
+    var feedbackcheckcomponent={
+        template:'#feedbackcheckcomponent',
+        data(){
+            return{
+                msg:'feedbackcomponent',
+                ideaList:[]
+            }
+        },
+        created(){
+            this.getformInfo();
+        },
+        methods:{
+            getformInfo(){
+                console.log("feedbackcheckcomponent-getformInfo");
+                var that=this;
+                var id=that.$route.params.id.toString();
+                var param= {"type":"check","id":id};
+                axios.post("http://ip:8081/what_eat/suggestion/id/form/detail",param).then(function (response) {
+                    console.log("axios-post");
+                    that.ideaList=response.data;
+                })
+            }
+    }
+    }
+    var feedbackformcomponent={
+        template:'#feedbackformcomponent',
+        data() {
+            return {
+                msg: 'feedbackformcomponent',
+                menuList: [],
+                idea:'',
+                result:''
+            }
+        },
+        created(){
+        this.getformInfo();
+        },
+        methods:{
+            getformInfo(){
+                console.log("feedbackformcomponent-getformInfo");
+                var that=this;
+                var id=that.$route.params.id.toString();
+                var param= {"type":"info","id":id};
+                axios.post("http://ip:8081/what_eat/menu/id/detail",param).then(function (response) {
+                    console.log("axios-post");
+                    that.menuList=response.data;
+                })
+            },
+            submitForm(){
+                console.log("feedbackformcomponent-submitForm");
+                console.log(this.idea);
+                var that=this;
+                var param={
+                    "id":this.$route.params.id,
+                    "type":that.idea.toString()
+                }
+                axios.post("http://ip:8081/what_eat/suggestion/id/form",param).then(function (response) {
+                    console.log("axios-post");
+                    that.result=response.data;
+                    console.log(this.result);
+                })
+            }
+        }
+    }
+    var menuinfocomponent={
+        template:'#menuinfocomponent',
+        data(){
+            return{
+                msg:'menuinfocomponent',
+                menuList:[],
+                id:'',
+                result:''
+            }
+        },
+        created(){
+            this.getMenuInfo();
+        },
+        methods:{
+            getMenuInfo(){
+                console.log("menuinfocomponent-getMenuInfo");
+                var that=this;
+                var id=that.$route.params.id.toString();
+                var param= {"type":"mysql","id":id};
+                axios.post("http://ip:8081/what_eat/menu/id/detail",param).then(function (response) {
+                    console.log("axios-post");
+                    that.menuList=response.data;
+                })
+            },
+            operator(){
+                console.log("menuinfocomponent-operator");
+                this.$toast({
+                    duration:1000,
+                    message:'操作成功'
+                });
+                var that=this;
+                var id=that.$route.params.id.toString();
+                var param= {"type":"mysql","id":id};
+                axios.post("http://ip:8081/what_eat/menu/id/collected",param).then(function (response) {
+                    console.log("axios-post");
+                    that.result=response.data;
+                    console.log(this.result);
+                })
+            }
+        }
+    }
+    var carouselcomponent={
+        template:'#carouselcomponent',
+        data(){
+            return {
+                value:100,
+                speed:0,
+                minSpeed:0,
+                maxSpeed:6000,
+                computedSpeed:100000,
+                menuList:''
+            }
+        },
+        created(){
+            this.getMenuList();
+        },
+        methods:{
+            getSpeed(val){
+                this.speed=val;
+                this.computedSpeed=7000-this.speed;
+            },
+            synchSpeed(val){
+                console.log(this.computedSpeed);
+            },
+            getMenuList(){
+                console.log("carouselcomponent-getMenuList");
+                var that=this;
+                var param={"type":"collect"};
+                axios.post("http://ip:8081/what_eat/menu/list/operator",param).then(function (response) {
+                    that.menuList=response.data;
+                })
+            }
+        }
+    }
+
+    var routerObj=new VueRouter({
+        routes:[
+            {
+                path:'/',redirect:'/searchcomponent'
+            },
+            {
+                path:'/searchcomponent',
+                component:searchcomponent
+            },
+            {
+                path:'/collectcomponent/:id',
+                component:collectcomponent,
+                name:'test2'
+            },
+            {
+                path:'/collectcomponent',
+                component:collectcomponent,
+                name:'collectcomponent'
+            },
+            {
+                path:'/deletecomponent',
+                component:deletecomponent
+            },
+            {
+                path:'/deletecomponent/:id',
+                component:deletecomponent,
+                name:'test3'
+            },
+            {
+                path:'/feedbackcomponent',
+                component:feedbackcomponent,
+                name:'feedbackcomponent'
+            },
+            {
+                path:'/carouselcomponent',
+                component:carouselcomponent
+            },
+            {
+                path:'/menuinfocomponent',
+                component:menuinfocomponent,
+                name: 'menuinfocomponent',
+            },
+            {
+                path:'/searchcomponent/:id/:name',
+                component:searchcomponent
+            },
+            {
+                path:'/menuinfocomponent/:id',
+                component:menuinfocomponent,
+                name: 'test1'
+            },
+            {
+                path:'/feedbackformcomponent/:id',
+                component:feedbackformcomponent,
+                name: 'feedbackform'
+            },
+            {
+                path:'/feedbackcheckcomponent/:id',
+                component:feedbackcheckcomponent,
+                name: 'feedbackcheck'
+            },
+            {
+                path:'/feedbackcheckcomponent',
+                component:feedbackcheckcomponent,
+                name:'feedbackcheckflush'
+            },
+            {
+                path:'/carouselcomponent/:speed',
+                component:carouselcomponent,
+                name:'carouselcomponent'
+            }
+        ],
+            linkActiveClass:'mui-active'
+    })
+
+    new Vue({
+        el: '#app',
+        data:{
+            swipeList:[],
+            menuList:[]
+        },
+        router:routerObj
+    })
+</script>
+</html>

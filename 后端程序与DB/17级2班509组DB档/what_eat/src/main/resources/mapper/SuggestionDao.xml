@@ -1,0 +1,53 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--包名与dao包中的接口名对应-->
+<mapper namespace="com.ssm.dao.SuggestionDao">
+
+    <select id="queryById" resultType="Suggestion" parameterType="Integer">
+        SELECT *
+        FROM suggestion
+        WHERE id=#{id}
+    </select>
+
+    <select id="queryUnreviewed" resultType="Suggestion">
+        select *
+        from suggestion
+        where reviewed=0
+    </select>
+
+    <select id="queryAll" resultType="Suggestion">
+        select *
+        from suggestion
+    </select>
+
+    <insert id="insertSuggestion" parameterType="Suggestion">
+        insert into suggestion(category,name,method,url,idea,date)
+        values (#{category}, #{name}, #{method}, #{url},#{idea},#{date})
+    </insert>
+    
+    <update id="reviewSuggestion" parameterType="Integer">
+        update suggestion
+        set reviewed=1
+        where id=#{id}
+    </update>
+
+    <update id="passed" parameterType="Integer">
+        update suggestion
+        set reviewed=1,passed=1
+        where id=#{id}
+    </update>
+
+    <update id="noPassed" parameterType="Integer">
+        update suggestion
+        set reviewed=1,passed=0
+        where id=#{id}
+    </update>
+
+    <update id="updateUrl" parameterType="Suggestion">
+        update suggestion
+        set url=#{url}
+        where id=#{id}
+    </update>
+
+</mapper>
